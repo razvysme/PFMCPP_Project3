@@ -51,43 +51,120 @@ struct CarWash            //1) a U.D.T. with a random number of member variables
 /*
  1)
  */
-
+struct Wavetable //well, this one is an outlier
+{
+	string name = "blank";
+	float samples[256];
+	
+	void getCurrentSample(float samples[]);
+}
 /*
  2)
  */
-
+struct Filter
+{
+	string type = "Steiner-Parker";
+	int order = 2;
+}
 /*
  3)
  */
-
+struct SendAndReturn()
+{
+	bool isMono = false;
+	
+	int destination;
+	float gainLeftChannel;
+	float gainRightChannel;
+}
 /*
  4)
  */
-
+struct FilterSection
+{
+	Filter HP;
+	Filter MID;
+	Filter LOP;
+}
 /*
  5)
  */
-
+struct MixerChannel
+{
+	struct HighPassFilter
+	{
+		bool isOn;
+	}
+	int number;
+	SendAndReturn sendAndReturn;
+	float inputGain = 0;
+	float outputGain = 0;
+	float pan = 0.5;
+	
+	void mute(bool muteButton);
+	void solo(bool soloButton, int channelNumber);
+}
 /*
  6)
  */
-
+struct MonoChannel
+{
+	MixerChannel channel;
+	FilterSection filter;
+	SendAndReturn sendAndReturn;
+}
 /*
  7)
  */
-
+struct StereoChannel
+{
+	MixerChannel leftChannel;
+	MixerChannel righChannel;
+	SendAndReturn sendAndReturn;	
+}
 /*
  8)
  */
-
+struct Effect
+{
+	string name;
+	int number;
+	float param1;
+	float param2;
+}
 /*
  9)
  */
-
+struct outputChannel;
+{
+	string name;
+	float gain;
+}
 /*
  10)
  */
+Struct Mixer
+{
+		Mixer(float numberOfMonoChannels, float numberOfStereoChannels)
+	{
+		for(int i = 0; i<numberOfMonoChannels, i++)
+		monoChannels[i] = MonoChannel;
+	
+		for(int i = 0; i<numberOfStereoChannelsChannels, i++)
+		stereoChannels[i] = StereoChannel;	
+	}
+	
+	int numberOfMonoChannels = 6;
+	int numberOfStereoChannel = 2;
+	MonoChannel monoChannels[numberOfMonoChannels];
+	StereoChannel stereoChannels[numberOfStereoChannels];
+	Effect effect1;
+	Effect effect2;
+	
+	outputChannel mainMix;
+	outputChannel ctrlRoom;
 
+}
 #include <iostream>
 int main()
 {
