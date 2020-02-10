@@ -1,3 +1,6 @@
+#include <string>
+using namespace std;
+
 /*
  Project 3 - Part 1 / 5
 Video:  Chapter 2 Part 5
@@ -51,50 +54,40 @@ struct CarWash            //1) a U.D.T. with a random number of member variables
 /*
  1)
  */
-struct Wavetable //well, this one is an outlier
-{
-	string name = "blank";
-	float samples[256];
-	
-	void getCurrentSample(float samples[]);
-}
-/*
- 2)
- */
 struct Filter
 {
 	string type = "Steiner-Parker";
 	int order = 2;
-}
+};
 /*
- 3)
+ 2)
  */
-struct SendAndReturn()
+struct SendAndReturn
 {
 	bool isMono = false;
 	
 	int destination;
 	float gainLeftChannel;
 	float gainRightChannel;
-}
+};
 /*
- 4)
+ 3)
  */
 struct FilterSection
 {
 	Filter HP;
 	Filter MID;
 	Filter LOP;
-}
+};
 /*
- 5)
+ 4)
  */
 struct MixerChannel
 {
 	struct HighPassFilter
 	{
 		bool isOn;
-	}
+	};
 	int number;
 	SendAndReturn sendAndReturn;
 	float inputGain = 0;
@@ -103,27 +96,27 @@ struct MixerChannel
 	
 	void mute(bool muteButton);
 	void solo(bool soloButton, int channelNumber);
-}
+};
 /*
- 6)
+ 5)
  */
 struct MonoChannel
 {
 	MixerChannel channel;
 	FilterSection filter;
 	SendAndReturn sendAndReturn;
-}
+};
 /*
- 7)
+ 6)
  */
 struct StereoChannel
 {
 	MixerChannel leftChannel;
 	MixerChannel righChannel;
 	SendAndReturn sendAndReturn;	
-}
+};
 /*
- 8)
+ 7)
  */
 struct Effect
 {
@@ -131,40 +124,65 @@ struct Effect
 	int number;
 	float param1;
 	float param2;
-}
+};
 /*
- 9)
+ 8)
  */
-struct outputChannel;
+struct outputChannel
 {
 	string name;
 	float gain;
-}
+	void setGain(float gain);
+};
 /*
- 10)
+ 9)
  */
-Struct Mixer
+struct Mixer
 {
 		Mixer(float numberOfMonoChannels, float numberOfStereoChannels)
 	{
-		for(int i = 0; i<numberOfMonoChannels, i++)
-		monoChannels[i] = MonoChannel;
+		for(int i = 0; i<numberOfMonoChannels; i++)
+		{
+			//i don't understand why i cannot create a new instance of MonoChannel
+			//monoChannels[i] = new MonoChannel;
+		}
+
 	
-		for(int i = 0; i<numberOfStereoChannelsChannels, i++)
-		stereoChannels[i] = StereoChannel;	
+		for(int i = 0; i<numberOfStereoChannels; i++)
+		{
+			//same here; looking forward to learning about these
+			//stereoChannels[i] = new StereoChannel;	
+
+		}
+		
 	}
 	
 	int numberOfMonoChannels = 6;
-	int numberOfStereoChannel = 2;
-	MonoChannel monoChannels[numberOfMonoChannels];
-	StereoChannel stereoChannels[numberOfStereoChannels];
+	int numberOfStereoChannels = 2;
+	
+	MonoChannel monoChannels[4];
+	StereoChannel stereoChannels[2];
+	//wish i could do this 
+	//MonoChannel monoChannels[numberOfMonoChannels];
+	//StereoChannel stereoChannels[numberOfStereoChannels];
 	Effect effect1;
 	Effect effect2;
 	
 	outputChannel mainMix;
 	outputChannel ctrlRoom;
 
-}
+};
+/*
+10)
+*/
+struct Wavetable //well, this one is an outlier
+{
+	string name = "blank";
+	float samples[256];
+	
+	void getCurrentSample(float samples[]);
+	void applyEffect(Effect effect); // 3
+};
 #include <iostream>
 int main()
 {
