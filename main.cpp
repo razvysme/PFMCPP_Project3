@@ -63,7 +63,7 @@ struct CarWash            //1) a U.D.T. with a random number of member variables
  */
 struct Filter
 {
-	string type = "Steiner-Parker";
+    string type = "Steiner-Parker";
 	int order = 2;
 };
 /*
@@ -72,14 +72,13 @@ struct Filter
 struct SendAndReturn
 {
 	bool isMono = false;
-	
-	int destination;
+	unsigned short destination;
 	float gainLeftChannel;
 	float gainRightChannel;
 };
 /*
- 3)
- */
+ 3) //this is the one only using my defined types
+ */ 
 struct FilterSection
 {
 	Filter HP;
@@ -128,7 +127,7 @@ struct StereoChannel
 struct Effect
 {
 	string name;
-	int number;
+	unsigned short number;
 	float param1;
 	float param2;
 };
@@ -146,12 +145,12 @@ struct outputChannel
  */
 struct Mixer
 {
-		Mixer(float numberOfMonoChannels, float numberOfStereoChannels)
+		Mixer(unsigned short numberOfMonoChannels, unsigned short numberOfStereoChannels)
 	{
 		for(int i = 0; i<numberOfMonoChannels; i++)
 		{
-			//i don't understand why i cannot create a new instance of MonoChannel
-			//monoChannels[i] = new MonoChannel;
+			//i don't understand why i cannot create a new instance of MonoChannel like: 
+			//monoChannels[i] = new MonoChannel; //help needed
 		}
 
 	
@@ -163,9 +162,6 @@ struct Mixer
 		}
 		
 	}
-	
-	int numberOfMonoChannels = 6;
-	int numberOfStereoChannels = 2;
 	
 	MonoChannel monoChannels[4];
 	StereoChannel stereoChannels[2];
