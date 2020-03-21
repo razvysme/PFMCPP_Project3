@@ -1,3 +1,4 @@
+ #include <string>
  /*
  Project 3 - Part 2 / 5
  Video: Chapter 2 Part 6
@@ -12,9 +13,51 @@ Create a branch named Part2
     You'll need to insert the Person struct from the video in the space below.
  */
 
+struct Foot
+{
+    int oldFootPos, newFootPos;
+    int howFast;
+ 
+    void stepForward()
+    {
+        newFootPos = oldFootPos * howFast;
+    }
+    int stepSize()
+    {
+        return newFootPos - oldFootPos;
+    }
+};
 
+struct Person
+{
+    int age;
+    int height;
+    float hairLength;
+    float GPA;
+    unsigned int SATScore;
+    Foot leftFoot;
+    Foot rightFoot;
+    int distanceTraveled;
 
+    void run(int howFast, bool startWithLeftFoot);
+};
 
+void Person::run(int howFast, bool startWithLeftFoot)
+{
+    //howFast is not in use, but i assume it could be a parameter for stepForward function, right? 
+
+    if(startWithLeftFoot == true)
+    {
+        leftFoot.stepForward();
+        rightFoot.stepForward();
+    }
+    else
+    {
+        rightFoot.stepForward();
+        rightFoot.stepForward();
+    }
+    distanceTraveled += leftFoot.stepSize() + rightFoot.stepSize();
+}
 
  /*
  2) provide implementations for the member functions you declared in your 10 user-defined types from the previous video outside of your UDT definitions.
@@ -36,12 +79,12 @@ send me a DM to check your pull request
  */
 struct Effect
 {
-	string name;
+	std::string name;
 	unsigned short number;
 	float param1;
 	float param2;
 
-    void savePresset( float param1, float param2, float effectNumber, string userName );
+    void savePresset( float param1, float param2, float effectNumber, std::string userName );
     void changePresset( float param1, float param2 );
 };
 /*
@@ -49,10 +92,10 @@ struct Effect
  */
 struct Filter
 {
-    string type = "Steiner-Parker";
+    std::string type = "Steiner-Parker";
 	int order = 2;
 
-    string changeType( string currentType );
+    std::string changeType( std::string currentType );
     void bypass();
 };
 /*
@@ -128,7 +171,7 @@ struct StereoChannel
  */
 struct outputChannel
 {
-	string name;
+	std::string name;
 	float gain;
 	void setGain( float gain );
     void sendToHeadphone( MixerChannel headphones );
@@ -173,7 +216,7 @@ struct Mixer
 */
 struct Wavetable //well, this one is an outlier
 {
-	string name = "blank";
+	std::string name = "blank";
 	float samples[256];
 	
 	void getCurrentSample(float samples[]);
@@ -184,3 +227,5 @@ int main()
 {
     std::cout << "good to go!" << std::endl;
 }
+
+
