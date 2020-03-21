@@ -163,7 +163,7 @@ struct outputChannel
  */
 struct Mixer
 {
-		Mixer( unsigned short numberOfMonoChannels, unsigned short numberOfStereoChannels )
+	Mixer( unsigned short numberOfMonoChannels, unsigned short numberOfStereoChannels )
 	{
 		for(int i = 0; i<numberOfMonoChannels; i++)
 		{
