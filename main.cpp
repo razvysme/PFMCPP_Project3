@@ -56,18 +56,32 @@ struct CarWash            //1) a U.D.T. with a random number of member variables
     
     Car myCar;  //5) a member variable whose type is a UDT.
 };
-
-
 /*
  1)
+ */
+struct Effect
+{
+	string name;
+	unsigned short number;
+	float param1;
+	float param2;
+
+    void savePresset( float param1, float param2, float effectNumber, string userName );
+    void changePresset( float param1, float param2 );
+};
+/*
+ 2)
  */
 struct Filter
 {
     string type = "Steiner-Parker";
 	int order = 2;
+
+    string changeType( string currentType );
+    void bypass();
 };
 /*
- 2)
+ 3)
  */
 struct SendAndReturn
 {
@@ -75,18 +89,25 @@ struct SendAndReturn
 	unsigned short destination;
 	float gainLeftChannel;
 	float gainRightChannel;
+
+    void filter( Filter lowPass );
+    void applyEffect( Effect effect );
+
 };
 /*
- 3) //this is the one only using my defined types
+ 4) //this is the one only using my defined types
  */ 
 struct FilterSection
 {
 	Filter HP;
 	Filter MID;
 	Filter LOP;
+
+    int changeOrder( Filter filter );
+    void bypass();
 };
 /*
- 4)
+ 5)
  */
 struct MixerChannel
 {
@@ -100,36 +121,32 @@ struct MixerChannel
 	float outputGain = 0;
 	float pan = 0.5;
 	
-	void mute(bool muteButton);
-	void solo(bool soloButton, int channelNumber);
+	void mute( bool muteButton );
+	void solo( bool soloButton, int channelNumber );
 };
 /*
- 5)
+ 6)
  */
 struct MonoChannel
 {
 	MixerChannel channel;
 	FilterSection filter;
 	SendAndReturn sendAndReturn;
+
+    void send( MixerChannel channel );
+    void mute();
 };
 /*
- 6)
+ 7)
  */
 struct StereoChannel
 {
 	MixerChannel leftChannel;
 	MixerChannel righChannel;
 	SendAndReturn sendAndReturn;	
-};
-/*
- 7)
- */
-struct Effect
-{
-	string name;
-	unsigned short number;
-	float param1;
-	float param2;
+
+    void send( MixerChannel channel );
+    void mute();
 };
 /*
  8)
@@ -138,14 +155,15 @@ struct outputChannel
 {
 	string name;
 	float gain;
-	void setGain(float gain);
+	void setGain( float gain );
+    void sendToHeadphone( MixerChannel headphones );
 };
 /*
  9)
  */
 struct Mixer
 {
-		Mixer(unsigned short numberOfMonoChannels, unsigned short numberOfStereoChannels)
+		Mixer( unsigned short numberOfMonoChannels, unsigned short numberOfStereoChannels )
 	{
 		for(int i = 0; i<numberOfMonoChannels; i++)
 		{
@@ -153,14 +171,11 @@ struct Mixer
 			//monoChannels[i] = new MonoChannel; //help needed
 		}
 
-	
 		for(int i = 0; i<numberOfStereoChannels; i++)
 		{
 			//same here; looking forward to learning about these
 			//stereoChannels[i] = new StereoChannel;	
-
-		}
-		
+		}	
 	}
 	
 	MonoChannel monoChannels[4];
@@ -170,9 +185,12 @@ struct Mixer
 	//StereoChannel stereoChannels[numberOfStereoChannels];
 	Effect effect1;
 	Effect effect2;
-	
 	outputChannel mainMix;
 	outputChannel ctrlRoom;
+
+    void boot();
+    void sendTestSignal( MixerChannel destinationChannel);
+
 
 };
 /*
