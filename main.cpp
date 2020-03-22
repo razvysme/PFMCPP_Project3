@@ -229,6 +229,7 @@ struct Wavetable //well, this one is an outlier
 	float getCurrentSample(float waveSamples[], int currentSampleNr);
 	void applyEffect(Effect effect); // 3
 };
+FIXME main needs to go at the end of the file. 
 #include <iostream>
 int main()
 {
@@ -301,12 +302,12 @@ void MixerChannel::mute(bool muteButton)
     else
         outputGain = 1.0f;
 
-    muteButton=!muteButton;   
+    muteButton=!muteButton;   FIXME add spaces to make this easy to read.
 }
 void MixerChannel::solo(bool soloButton, int channelNumber)
 {
     number = channelNumber;
-    soloButton=!soloButton;
+    soloButton=!soloButton; FIXME add spaces to make this easy to read.
 }
 /*
 6
@@ -348,11 +349,11 @@ void outputChannel::sendToHeadphone( MixerChannel headphones )
 */
 void Mixer::boot()
 {
-    for(int i=0; i<4; ++i)
+    for(int i=0; i<4; ++i) FIXME add spaces to make this easy to read.
     {
         monoChannels[i].channel.outputGain = 1.0f; // i know this is crazy but heck, this mixer has no faders
     }
-    for(int i=0; i<2; ++i)
+    for(int i=0; i<2; ++i) FIXME add spaces to make this easy to read.
     {
         stereoChannels[i].leftChannel.outputGain = 1.0f; 
         stereoChannels[i].rightChannel.outputGain = 1.0f;
