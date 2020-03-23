@@ -1,3 +1,6 @@
+#include <string>
+#include <stdio.h>
+#include <stdlib.h>
  /*
  Project 3 - Part 2 / 5
  Video: Chapter 2 Part 6
@@ -12,9 +15,51 @@ Create a branch named Part2
     You'll need to insert the Person struct from the video in the space below.
  */
 
+struct Foot
+{
+    int oldFootPos, newFootPos;
+    int howFast;
+ 
+    void stepForward()
+    {
+        newFootPos = oldFootPos * howFast;
+    }
+    int stepSize()
+    {
+        return newFootPos - oldFootPos;
+    }
+};
 
+struct Person
+{
+    int age;
+    int height;
+    float hairLength;
+    float GPA;
+    unsigned int SATScore;
+    Foot leftFoot;
+    Foot rightFoot;
+    int distanceTraveled;
 
+    void run(int howFast, bool startWithLeftFoot);
+};
 
+void Person::run(int, bool startWithLeftFoot)
+{
+    //howFast is not in use, but i assume it could be a parameter for stepForward function, right? 
+
+    if(startWithLeftFoot == true)
+    {
+        leftFoot.stepForward();
+        rightFoot.stepForward();
+    }
+    else
+    {
+        rightFoot.stepForward();
+        rightFoot.stepForward();
+    }
+    distanceTraveled += leftFoot.stepSize() + rightFoot.stepSize();
+}
 
  /*
  2) provide implementations for the member functions you declared in your 10 user-defined types from the previous video outside of your UDT definitions.
@@ -36,25 +81,55 @@ send me a DM to check your pull request
  */
 struct Effect
 {
-	string name;
+	std::string name;
 	unsigned short number;
 	float param1;
 	float param2;
 
-    void savePresset( float param1, float param2, float effectNumber, string userName );
-    void changePresset( float param1, float param2 );
+    // had to add this struct so my effect logic makes sense
+    struct Preset 
+    {
+        float param1, param2, effectNumber;
+    };
+
+    void savePreset( float currentParam1, float currentParam2, float effectNumber, Preset presetName);
+    void changePreset( float currentParam1, float currentParam2 );
 };
+
+void Effect::savePreset( float currentParam1, float currentParam2, float effectNumber, Preset presetName)
+{
+	presetName.param1 = currentParam1;
+	presetName.param2 = currentParam2;
+	presetName.effectNumber = effectNumber;
+}
+void Effect::changePreset(float currentParam1, float currentParam2)
+{
+    param1 = currentParam1; //this is some getto getter/setter thing, right?
+    param2 = currentParam2;
+}
 /*
  2)
  */
 struct Filter
 {
-    string type = "Steiner-Parker";
+    std::string type = "Steiner-Parker";
 	int order = 2;
+    bool bypassLED = false;
 
-    string changeType( string currentType );
+    std::string changeType( std::string currentType );
     void bypass();
 };
+
+std::string Filter::changeType( std::string currentType )
+{
+    return currentType;
+}
+
+void Filter::bypass()
+{
+    //well this is kinda hard to implement without the audio stream, but it would look something like y[n]=x[n], therefore i added the bypassLED bool so this declaration is not empty.
+    bypassLED = true;
+}
 /*
  3)
  */
@@ -69,6 +144,18 @@ struct SendAndReturn
     void applyEffect( Effect effect );
 
 };
+
+void SendAndReturn::filter( Filter lowPass )
+{
+    lowPass.type="Low Pass"; 
+}
+
+void SendAndReturn::applyEffect( Effect effect )
+{
+    // again, hard to do without audio stream... kinda regret my decisions now :)
+    effect.param1 = 1.0f;
+    effect.param2 = 1.0f;
+}
 /*
  4) //this is the one only using my defined types
  */ 
@@ -78,9 +165,23 @@ struct FilterSection
 	Filter MID;
 	Filter LOP;
 
-    int changeOrder( Filter filter );
+    void changeOrder( int order ); // this made no logic sense, so i eddited it a bit
     void bypass();
 };
+
+void FilterSection::changeOrder( int order )
+{
+    LOP.order = order;
+    MID.order = order;
+    HP.order = order;
+}
+
+void FilterSection::bypass()
+{
+    LOP.bypassLED = true; 
+    MID.bypassLED = true; 
+    HP.bypassLED = true; 
+}
 /*
  5)
  */
@@ -99,6 +200,21 @@ struct MixerChannel
 	void mute( bool muteButton );
 	void solo( bool soloButton, int channelNumber );
 };
+
+void MixerChannel::mute(bool muteButton)
+{
+    if(muteButton)
+        outputGain = 0.0f;
+    else
+        outputGain = 1.0f;
+
+    muteButton = !muteButton;
+}
+void MixerChannel::solo(bool soloButton, int channelNumber)
+{
+    number = channelNumber;
+    soloButton = !soloButton; 
+}
 /*
  6)
  */
@@ -108,31 +224,60 @@ struct MonoChannel
 	FilterSection filter;
 	SendAndReturn sendAndReturn;
 
-    void send( MixerChannel channel );
+    void send( MixerChannel destination );
     void mute();
 };
+
+void MonoChannel::send( MixerChannel destination )
+{
+      destination.sendAndReturn.gainLeftChannel = 1.0f;
+}
+void MonoChannel::mute()
+{
+    channel.mute(true);
+}
 /*
  7)
  */
 struct StereoChannel
 {
 	MixerChannel leftChannel;
-	MixerChannel righChannel;
+	MixerChannel rightChannel;
 	SendAndReturn sendAndReturn;	
 
-    void send( MixerChannel channel );
+    void send( MixerChannel destination );
     void mute();
 };
+
+void StereoChannel::send( MixerChannel destination )
+{
+    destination.sendAndReturn.gainLeftChannel = 1.0f;
+    destination.sendAndReturn.gainRightChannel = 1.0f;
+}
+void StereoChannel::mute()
+{
+    leftChannel.mute(true);
+    rightChannel.mute(true);
+}
 /*
  8)
  */
 struct outputChannel
 {
-	string name;
+	std::string name;
 	float gain;
-	void setGain( float gain );
+	void setGain( float newGain );
     void sendToHeadphone( MixerChannel headphones );
 };
+
+void outputChannel::setGain( float newGain )
+{
+    gain = newGain;
+}
+void outputChannel::sendToHeadphone( MixerChannel headphones )
+{
+    headphones.inputGain = 1;
+}
 /*
  9)
  */
@@ -165,20 +310,48 @@ struct Mixer
 
     void boot();
     void sendTestSignal( MixerChannel destinationChannel);
-
-
 };
+
+void Mixer::boot()
+{
+    for( int i = 0; i < 4; ++i ) 
+    {
+        monoChannels[i].channel.outputGain = 1.0f; // i know this is crazy but heck, this mixer has no faders
+    }
+    for( int i = 0; i < 2; ++i ) 
+    {
+        stereoChannels[i].leftChannel.outputGain = 1.0f; 
+        stereoChannels[i].rightChannel.outputGain = 1.0f;
+    }
+    mainMix.setGain( 1.0f );
+}
+void Mixer::sendTestSignal( MixerChannel destinationChannel )
+{
+    destinationChannel.outputGain = 1;
+    //and output is random(noise)
+}
 /*
 10)
 */
 struct Wavetable //well, this one is an outlier
 {
-	string name = "blank";
+	std::string name = "blank";
 	float samples[256];
 	
-	void getCurrentSample(float samples[]);
+	float getCurrentSample(float waveSamples[], int currentSampleNr);
 	void applyEffect(Effect effect); // 3
 };
+
+float Wavetable::getCurrentSample( float waveSamples[], int currentSampleNr )
+{
+    return  waveSamples[currentSampleNr];
+}
+void  Wavetable::applyEffect( Effect effect )
+{
+    effect.param1 = rand();
+    effect.param2 = rand();
+}
+
 #include <iostream>
 int main()
 {
