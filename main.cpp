@@ -44,7 +44,7 @@ struct Person
     void run(int howFast, bool startWithLeftFoot);
 };
 
-void Person::run(int howFast, bool startWithLeftFoot)
+void Person::run(int, bool startWithLeftFoot)
 {
     //howFast is not in use, but i assume it could be a parameter for stepForward function, right? 
 
@@ -229,12 +229,7 @@ struct Wavetable //well, this one is an outlier
 	float getCurrentSample(float waveSamples[], int currentSampleNr);
 	void applyEffect(Effect effect); // 3
 };
-FIXME main needs to go at the end of the file. 
-#include <iostream>
-int main()
-{
-    std::cout << "good to go!" << std::endl;
-}
+
 /*
 1
 */
@@ -302,12 +297,12 @@ void MixerChannel::mute(bool muteButton)
     else
         outputGain = 1.0f;
 
-    muteButton=!muteButton;   FIXME add spaces to make this easy to read.
+    muteButton =! muteButton;
 }
 void MixerChannel::solo(bool soloButton, int channelNumber)
 {
     number = channelNumber;
-    soloButton=!soloButton; FIXME add spaces to make this easy to read.
+    soloButton =! soloButton; 
 }
 /*
 6
@@ -349,11 +344,11 @@ void outputChannel::sendToHeadphone( MixerChannel headphones )
 */
 void Mixer::boot()
 {
-    for(int i=0; i<4; ++i) FIXME add spaces to make this easy to read.
+    for( int i=0; i<4; ++i ) 
     {
         monoChannels[i].channel.outputGain = 1.0f; // i know this is crazy but heck, this mixer has no faders
     }
-    for(int i=0; i<2; ++i) FIXME add spaces to make this easy to read.
+    for( int i=0; i<2; ++i ) 
     {
         stereoChannels[i].leftChannel.outputGain = 1.0f; 
         stereoChannels[i].rightChannel.outputGain = 1.0f;
@@ -376,4 +371,10 @@ void  Wavetable::applyEffect( Effect effect )
 {
     effect.param1 = rand();
     effect.param2 = rand();
+}
+
+#include <iostream>
+int main()
+{
+    std::cout << "good to go!" << std::endl;
 }
