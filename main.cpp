@@ -208,12 +208,12 @@ void MixerChannel::mute(bool muteButton)
     else
         outputGain = 1.0f;
 
-    muteButton =! muteButton;
+    muteButton = !muteButton;
 }
 void MixerChannel::solo(bool soloButton, int channelNumber)
 {
     number = channelNumber;
-    soloButton =! soloButton; 
+    soloButton = !soloButton; 
 }
 /*
  6)
@@ -314,11 +314,11 @@ struct Mixer
 
 void Mixer::boot()
 {
-    for( int i=0; i<4; ++i ) 
+    for( int i = 0; i < 4; ++i ) 
     {
         monoChannels[i].channel.outputGain = 1.0f; // i know this is crazy but heck, this mixer has no faders
     }
-    for( int i=0; i<2; ++i ) 
+    for( int i = 0; i < 2; ++i ) 
     {
         stereoChannels[i].leftChannel.outputGain = 1.0f; 
         stereoChannels[i].rightChannel.outputGain = 1.0f;
