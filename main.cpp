@@ -73,7 +73,20 @@ struct Effect
     struct Preset 
     {
         float param1, param2, effectNumber;
+        Preset()
+        {
+            std::cout << "Preset loaded" << std::endl;
+        }
     };
+    Preset myPresset;
+
+       //constructor
+    Effect() 
+    {
+        param1 = 0; 
+        param2 = 0;
+        std::cout << "Effect created, parameters initialized to: " << param1 <<std::endl;
+    }
 
     void savePreset( float currentParam1, float currentParam2, float effectNumber, Preset presetName);
     void changePreset( float currentParam1, float currentParam2 );
@@ -84,6 +97,7 @@ void Effect::savePreset( float currentParam1, float currentParam2, float effectN
 	presetName.param1 = currentParam1;
 	presetName.param2 = currentParam2;
 	presetName.effectNumber = effectNumber;
+    std::cout << "Preset " << presetName.effectNumber << " is saved!" << std::endl; 
 }
 void Effect::changePreset(float currentParam1, float currentParam2)
 {
@@ -95,9 +109,19 @@ void Effect::changePreset(float currentParam1, float currentParam2)
  */
 struct Filter
 {
-    std::string type = "Steiner-Parker";
-	int order = 2;
+    std::string type;
+	int order;
     bool bypassLED = false;
+    float cutoff;
+
+    //constructor
+    Filter()
+    {
+         if(order==2)
+            type = "Steiner-Parker";
+        else
+            type = "Ladder";
+    }
 
     std::string changeType( std::string currentType );
     void bypass();
@@ -122,6 +146,13 @@ struct SendAndReturn
 	unsigned short destination;
 	float gainLeftChannel;
 	float gainRightChannel;
+
+    //constructor
+    SendAndReturn()
+    {
+       gainLeftChannel = 0.0f;
+       gainRightChannel = 0.0f;
+    }
 
     void filter( Filter lowPass );
     void applyEffect( Effect effect );
@@ -148,6 +179,14 @@ struct FilterSection
 	Filter MID;
 	Filter LOP;
 
+    //constructor
+    FilterSection()
+    {
+        HP.order = 2;
+        MID.order = 2;
+        LOP.order = 4;
+    }
+
     void changeOrder( int order ); // this made no logic sense, so i eddited it a bit
     void bypass();
 };
@@ -157,6 +196,7 @@ void FilterSection::changeOrder( int order )
     LOP.order = order;
     MID.order = order;
     HP.order = order;
+    std::cout << "Filter ordered changed to: " << order << std::endl;
 }
 
 void FilterSection::bypass()
@@ -172,14 +212,23 @@ struct MixerChannel
 {
 	struct HighPassFilter
 	{
-		bool isOn;
+		Filter highPass;
+        bool isOn;
 	};
 	int number;
 	SendAndReturn sendAndReturn;
 	float inputGain = 0;
 	float outputGain = 0;
 	float pan = 0.5;
+    HighPassFilter pad;
 	
+    //constructor
+    MixerChannel()
+    {
+        pad.highPass.cutoff = 75.0f; // this is some unnecessary workaround :)
+        pad.isOn = false;
+    }
+
 	void mute( bool muteButton );
 	void solo( bool soloButton, int channelNumber );
 };
@@ -207,6 +256,14 @@ struct MonoChannel
 	FilterSection filter;
 	SendAndReturn sendAndReturn;
 
+    //constructor
+    MonoChannel()
+    {
+        filter.HP.cutoff = 5000.0f;
+        filter.MID.cutoff = 800.0f;
+        filter.LOP.cutoff = 80.0f;
+    }
+
     void send( MixerChannel destination );
     void mute();
 };
@@ -228,6 +285,12 @@ struct StereoChannel
 	MixerChannel rightChannel;
 	SendAndReturn sendAndReturn;	
 
+    //constructor
+    StereoChannel()
+    {
+        sendAndReturn.destination = 1;
+    }
+    
     void send( MixerChannel destination );
     void mute();
 };
@@ -245,19 +308,27 @@ void StereoChannel::mute()
 /*
  8)
  */
-struct outputChannel
+struct OutputChannel
 {
 	std::string name;
 	float gain;
+
+    //constructor
+    OutputChannel()
+    {
+        gain = 0.8f;
+        name = "Main Out";
+    }
+
 	void setGain( float newGain );
     void sendToHeadphone( MixerChannel headphones );
 };
 
-void outputChannel::setGain( float newGain )
+void OutputChannel::setGain( float newGain )
 {
     gain = newGain;
 }
-void outputChannel::sendToHeadphone( MixerChannel headphones )
+void OutputChannel::sendToHeadphone( MixerChannel headphones )
 {
     headphones.inputGain = 1;
 }
@@ -288,8 +359,8 @@ struct Mixer
 	//StereoChannel stereoChannels[numberOfStereoChannels];
 	Effect effect1;
 	Effect effect2;
-	outputChannel mainMix;
-	outputChannel ctrlRoom;
+	OutputChannel mainMix;
+	OutputChannel ctrlRoom;
 
     void boot();
     void sendTestSignal( MixerChannel destinationChannel);
@@ -316,12 +387,21 @@ void Mixer::sendTestSignal( MixerChannel destinationChannel )
 /*
 10)
 */
+#define PI 3.141592653589793f
+#include <math.h>
+
 struct Wavetable //well, this one is an outlier
 {
 	std::string name = "blank";
 	float samples[256];
 	
-	float getCurrentSample(float waveSamples[], int currentSampleNr);
+    Wavetable()
+    {
+        for(int i = 0; i < (int)( sizeof( samples ) / sizeof( samples[0] )) ; i++)
+            samples[i] = sin(2 * PI * i * 440);
+    }
+
+	float getCurrentSample( float waveSamples[] , int currentSampleNr );
 	void applyEffect(Effect effect); // 3
 };
 
@@ -339,5 +419,25 @@ void  Wavetable::applyEffect( Effect effect )
 int main()
 {
 	Example::main();
+
+    Effect effect1;
+    Effect effect2;
+    Filter myLOP;
+    SendAndReturn SAR_A;
+    SendAndReturn SAR_B;
+    FilterSection ch_1_Filters;
+    MixerChannel subgroup1;
+    MonoChannel channel_1;
+    MonoChannel channel_2;
+    StereoChannel channel_3_4;
+    OutputChannel mainMix;
+    Mixer alesis(4, 2);
+    Wavetable testWavetable;
+
+    effect1.savePreset( 0.3f, 0.4f, 1, effect1.myPresset );
+    ch_1_Filters.changeOrder( 4 );
+    std::cout << "15th value in the wavetable is: " << testWavetable.getCurrentSample( testWavetable.samples, 15 ) << std::endl;
+    std::cout << "Default cutoff for the low pass filter is: " << ch_1_Filters.LOP.cutoff << std::endl;
+    std::cout << "Pad frequency is: " << subgroup1.pad.highPass.cutoff << ", and the status is " << subgroup1.pad.isOn << std::endl;
     std::cout << "good to go!" << std::endl;
 }
