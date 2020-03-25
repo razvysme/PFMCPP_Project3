@@ -150,13 +150,12 @@ struct SendAndReturn
     //constructor
     SendAndReturn()
     {
-       gainLeftChannel = 0.0f;
-       gainRightChannel = 0.0f;
+        gainLeftChannel = 0.0f;
+        gainRightChannel = 0.0f;
     }
 
     void filter( Filter lowPass );
     void applyEffect( Effect effect );
-
 };
 
 void SendAndReturn::filter( Filter lowPass )
