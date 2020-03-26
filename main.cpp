@@ -218,7 +218,7 @@ struct MixerChannel
 	SendAndReturn sendAndReturn;
 	float inputGain = 0;
 	float outputGain = 0;
-	float pan = 0.5;
+    float pan = 0.5;
     HighPassFilter pad;
 	
     //constructor
@@ -386,18 +386,13 @@ void Mixer::sendTestSignal( MixerChannel destinationChannel )
 /*
 10)
 */
-#define PI 3.141592653589793f
-#include <math.h>
-
 struct Wavetable //well, this one is an outlier
 {
 	std::string name = "blank";
-	float samples[256];
-	
+    
     Wavetable()
     {
-        for(int i = 0; i < (int)( sizeof( samples ) / sizeof( samples[0] )) ; i++)
-            samples[i] = sin(2 * PI * i * 440);
+        std::cout << "Wavetable is created" << std::endl;
     }
 
 	float getCurrentSample( float waveSamples[] , int currentSampleNr );
@@ -435,7 +430,7 @@ int main()
 
     effect1.savePreset( 0.3f, 0.4f, 1, effect1.myPresset );
     ch_1_Filters.changeOrder( 4 );
-    std::cout << "15th value in the wavetable is: " << testWavetable.getCurrentSample( testWavetable.samples, 15 ) << std::endl;
+
     std::cout << "Default cutoff for the low pass filter is: " << ch_1_Filters.LOP.cutoff << std::endl;
     std::cout << "Pad frequency is: " << subgroup1.pad.highPass.cutoff << ", and the status is " << subgroup1.pad.isOn << std::endl;
     std::cout << "good to go!" << std::endl;
