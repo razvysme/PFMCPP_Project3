@@ -117,7 +117,7 @@ struct Filter
     //constructor
     Filter()
     {
-         if(order==2)
+        if(order==2)
             type = "Steiner-Parker";
         else
             type = "Ladder";
@@ -269,7 +269,7 @@ struct MonoChannel
 
 void MonoChannel::send( MixerChannel destination )
 {
-      destination.sendAndReturn.gainLeftChannel = 1.0f;
+    destination.sendAndReturn.gainLeftChannel = 1.0f;
 }
 void MonoChannel::mute()
 {
