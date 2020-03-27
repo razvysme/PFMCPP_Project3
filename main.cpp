@@ -94,9 +94,9 @@ struct Effect
 
 void Effect::savePreset( float currentParam1, float currentParam2, float effectNumber, Preset presetName)
 {
-	presetName.param1 = currentParam1;
-	presetName.param2 = currentParam2;
-	presetName.effectNumber = effectNumber;
+    presetName.param1 = currentParam1;
+    presetName.param2 = currentParam2;
+    presetName.effectNumber = effectNumber;
     std::cout << "Preset " << presetName.effectNumber << " is saved!" << std::endl; 
 }
 void Effect::changePreset(float currentParam1, float currentParam2)
@@ -110,7 +110,7 @@ void Effect::changePreset(float currentParam1, float currentParam2)
 struct Filter
 {
     std::string type;
-	int order;
+    int order;
     bool bypassLED = false;
     float cutoff;
 
@@ -142,10 +142,10 @@ void Filter::bypass()
  */
 struct SendAndReturn
 {
-	bool isMono = false;
-	unsigned short destination;
-	float gainLeftChannel;
-	float gainRightChannel;
+    bool isMono = false;
+    unsigned short destination;
+    float gainLeftChannel;
+    float gainRightChannel;
 
     //constructor
     SendAndReturn()
@@ -174,9 +174,9 @@ void SendAndReturn::applyEffect( Effect effect )
  */ 
 struct FilterSection
 {
-	Filter HP;
-	Filter MID;
-	Filter LOP;
+    Filter HP;
+    Filter MID;
+    Filter LOP;
 
     //constructor
     FilterSection()
@@ -209,18 +209,18 @@ void FilterSection::bypass()
  */
 struct MixerChannel
 {
-	struct HighPassFilter
-	{
-		Filter highPass;
+    struct HighPassFilter
+    {
+        Filter highPass;
         bool isOn;
-	};
-	int number;
-	SendAndReturn sendAndReturn;
-	float inputGain = 0;
-	float outputGain = 0;
+    };
+    int number;
+    SendAndReturn sendAndReturn;
+    float inputGain = 0;
+    float outputGain = 0;
     float pan = 0.5;
     HighPassFilter pad;
-	
+
     //constructor
     MixerChannel()
     {
@@ -228,8 +228,8 @@ struct MixerChannel
         pad.isOn = false;
     }
 
-	void mute( bool muteButton );
-	void solo( bool soloButton, int channelNumber );
+    void mute( bool muteButton );
+    void solo( bool soloButton, int channelNumber );
 };
 
 void MixerChannel::mute(bool muteButton)
@@ -251,9 +251,9 @@ void MixerChannel::solo(bool soloButton, int channelNumber)
  */
 struct MonoChannel
 {
-	MixerChannel channel;
-	FilterSection filter;
-	SendAndReturn sendAndReturn;
+    MixerChannel channel;
+    FilterSection filter;
+    SendAndReturn sendAndReturn;
 
     //constructor
     MonoChannel()
@@ -280,9 +280,9 @@ void MonoChannel::mute()
  */
 struct StereoChannel
 {
-	MixerChannel leftChannel;
-	MixerChannel rightChannel;
-	SendAndReturn sendAndReturn;	
+    MixerChannel leftChannel;
+    MixerChannel rightChannel;
+    SendAndReturn sendAndReturn;	
 
     //constructor
     StereoChannel()
@@ -309,8 +309,8 @@ void StereoChannel::mute()
  */
 struct OutputChannel
 {
-	std::string name;
-	float gain;
+    std::string name;
+    float gain;
 
     //constructor
     OutputChannel()
@@ -319,7 +319,7 @@ struct OutputChannel
         name = "Main Out";
     }
 
-	void setGain( float newGain );
+    void setGain( float newGain );
     void sendToHeadphone( MixerChannel headphones );
 };
 
@@ -336,30 +336,30 @@ void OutputChannel::sendToHeadphone( MixerChannel headphones )
  */
 struct Mixer
 {
-	Mixer( unsigned short numberOfMonoChannels, unsigned short numberOfStereoChannels )
-	{
-		for(int i = 0; i<numberOfMonoChannels; i++)
-		{
-			//i don't understand why i cannot create a new instance of MonoChannel like: 
-			//monoChannels[i] = new MonoChannel; //help needed
-		}
+    Mixer( unsigned short numberOfMonoChannels, unsigned short numberOfStereoChannels )
+    {
+        for(int i = 0; i < numberOfMonoChannels; i++)
+        {
+            //i don't understand why i cannot create a new instance of MonoChannel like: 
+            //monoChannels[i] = new MonoChannel; //help needed
+        }
 
-		for(int i = 0; i<numberOfStereoChannels; i++)
-		{
-			//same here; looking forward to learning about these
-			//stereoChannels[i] = new StereoChannel;	
-		}	
-	}
+        for(int i = 0; i < numberOfStereoChannels; i++)
+        {
+            //same here; looking forward to learning about these
+            //stereoChannels[i] = new StereoChannel;	
+        }	
+    }
 	
-	MonoChannel monoChannels[4];
-	StereoChannel stereoChannels[2];
-	//wish i could do this 
-	//MonoChannel monoChannels[numberOfMonoChannels];
-	//StereoChannel stereoChannels[numberOfStereoChannels];
-	Effect effect1;
-	Effect effect2;
-	OutputChannel mainMix;
-	OutputChannel ctrlRoom;
+    MonoChannel monoChannels[4];
+    StereoChannel stereoChannels[2];
+    //wish i could do this 
+    //MonoChannel monoChannels[numberOfMonoChannels];
+    //StereoChannel stereoChannels[numberOfStereoChannels];
+    Effect effect1;
+    Effect effect2;
+    OutputChannel mainMix;
+    OutputChannel ctrlRoom;
 
     void boot();
     void sendTestSignal( MixerChannel destinationChannel);
@@ -388,20 +388,20 @@ void Mixer::sendTestSignal( MixerChannel destinationChannel )
 */
 struct Wavetable //well, this one is an outlier
 {
-	std::string name = "blank";
-    
+    std::string name = "blank";
+
     Wavetable()
     {
         std::cout << "Wavetable is created" << std::endl;
     }
 
-	float getCurrentSample( float waveSamples[] , int currentSampleNr );
-	void applyEffect(Effect effect); // 3
+    float getCurrentSample( float waveSamples[] , int currentSampleNr );
+    void applyEffect(Effect effect); // 3
 };
 
 float Wavetable::getCurrentSample( float waveSamples[], int currentSampleNr )
 {
-    return  waveSamples[currentSampleNr];
+    return waveSamples[currentSampleNr];
 }
 void  Wavetable::applyEffect( Effect effect )
 {
@@ -412,7 +412,7 @@ void  Wavetable::applyEffect( Effect effect )
 #include <iostream>
 int main()
 {
-	Example::main();
+    Example::main();
 
     Effect effect1;
     Effect effect2;
