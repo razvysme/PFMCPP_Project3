@@ -73,7 +73,20 @@ struct Effect
     struct Preset 
     {
         float param1, param2, effectNumber;
+        Preset()
+        {
+            std::cout << "Preset loaded" << std::endl;
+        }
     };
+    Preset myPresset;
+
+       //constructor
+    Effect() 
+    {
+        param1 = 0; 
+        param2 = 0;
+        std::cout << "Effect created, parameters initialized to: " << param1 <<std::endl;
+    }
 
     void savePreset( float currentParam1, float currentParam2, float effectNumber, Preset presetName);
     void changePreset( float currentParam1, float currentParam2 );
@@ -81,9 +94,10 @@ struct Effect
 
 void Effect::savePreset( float currentParam1, float currentParam2, float effectNumber, Preset presetName)
 {
-	presetName.param1 = currentParam1;
-	presetName.param2 = currentParam2;
-	presetName.effectNumber = effectNumber;
+    presetName.param1 = currentParam1;
+    presetName.param2 = currentParam2;
+    presetName.effectNumber = effectNumber;
+    std::cout << "Preset " << presetName.effectNumber << " is saved!" << std::endl; 
 }
 void Effect::changePreset(float currentParam1, float currentParam2)
 {
@@ -95,9 +109,19 @@ void Effect::changePreset(float currentParam1, float currentParam2)
  */
 struct Filter
 {
-    std::string type = "Steiner-Parker";
-	int order = 2;
+    std::string type;
+    int order;
     bool bypassLED = false;
+    float cutoff;
+
+    //constructor
+    Filter()
+    {
+        if(order==2)
+            type = "Steiner-Parker";
+        else
+            type = "Ladder";
+    }
 
     std::string changeType( std::string currentType );
     void bypass();
@@ -118,14 +142,20 @@ void Filter::bypass()
  */
 struct SendAndReturn
 {
-	bool isMono = false;
-	unsigned short destination;
-	float gainLeftChannel;
-	float gainRightChannel;
+    bool isMono = false;
+    unsigned short destination;
+    float gainLeftChannel;
+    float gainRightChannel;
+
+    //constructor
+    SendAndReturn()
+    {
+        gainLeftChannel = 0.0f;
+        gainRightChannel = 0.0f;
+    }
 
     void filter( Filter lowPass );
     void applyEffect( Effect effect );
-
 };
 
 void SendAndReturn::filter( Filter lowPass )
@@ -144,9 +174,17 @@ void SendAndReturn::applyEffect( Effect effect )
  */ 
 struct FilterSection
 {
-	Filter HP;
-	Filter MID;
-	Filter LOP;
+    Filter HP;
+    Filter MID;
+    Filter LOP;
+
+    //constructor
+    FilterSection()
+    {
+        HP.order = 2;
+        MID.order = 2;
+        LOP.order = 4;
+    }
 
     void changeOrder( int order ); // this made no logic sense, so i eddited it a bit
     void bypass();
@@ -157,6 +195,7 @@ void FilterSection::changeOrder( int order )
     LOP.order = order;
     MID.order = order;
     HP.order = order;
+    std::cout << "Filter ordered changed to: " << order << std::endl;
 }
 
 void FilterSection::bypass()
@@ -170,18 +209,27 @@ void FilterSection::bypass()
  */
 struct MixerChannel
 {
-	struct HighPassFilter
-	{
-		bool isOn;
-	};
-	int number;
-	SendAndReturn sendAndReturn;
-	float inputGain = 0;
-	float outputGain = 0;
-	float pan = 0.5;
-	
-	void mute( bool muteButton );
-	void solo( bool soloButton, int channelNumber );
+    struct HighPassFilter
+    {
+        Filter highPass;
+        bool isOn;
+    };
+    int number;
+    SendAndReturn sendAndReturn;
+    float inputGain = 0;
+    float outputGain = 0;
+    float pan = 0.5;
+    HighPassFilter pad;
+
+    //constructor
+    MixerChannel()
+    {
+        pad.highPass.cutoff = 75.0f; // this is some unnecessary workaround :)
+        pad.isOn = false;
+    }
+
+    void mute( bool muteButton );
+    void solo( bool soloButton, int channelNumber );
 };
 
 void MixerChannel::mute(bool muteButton)
@@ -203,9 +251,17 @@ void MixerChannel::solo(bool soloButton, int channelNumber)
  */
 struct MonoChannel
 {
-	MixerChannel channel;
-	FilterSection filter;
-	SendAndReturn sendAndReturn;
+    MixerChannel channel;
+    FilterSection filter;
+    SendAndReturn sendAndReturn;
+
+    //constructor
+    MonoChannel()
+    {
+        filter.HP.cutoff = 5000.0f;
+        filter.MID.cutoff = 800.0f;
+        filter.LOP.cutoff = 80.0f;
+    }
 
     void send( MixerChannel destination );
     void mute();
@@ -213,7 +269,7 @@ struct MonoChannel
 
 void MonoChannel::send( MixerChannel destination )
 {
-      destination.sendAndReturn.gainLeftChannel = 1.0f;
+    destination.sendAndReturn.gainLeftChannel = 1.0f;
 }
 void MonoChannel::mute()
 {
@@ -224,10 +280,16 @@ void MonoChannel::mute()
  */
 struct StereoChannel
 {
-	MixerChannel leftChannel;
-	MixerChannel rightChannel;
-	SendAndReturn sendAndReturn;	
+    MixerChannel leftChannel;
+    MixerChannel rightChannel;
+    SendAndReturn sendAndReturn;	
 
+    //constructor
+    StereoChannel()
+    {
+        sendAndReturn.destination = 1;
+    }
+    
     void send( MixerChannel destination );
     void mute();
 };
@@ -245,19 +307,27 @@ void StereoChannel::mute()
 /*
  8)
  */
-struct outputChannel
+struct OutputChannel
 {
-	std::string name;
-	float gain;
-	void setGain( float newGain );
+    std::string name;
+    float gain;
+
+    //constructor
+    OutputChannel()
+    {
+        gain = 0.8f;
+        name = "Main Out";
+    }
+
+    void setGain( float newGain );
     void sendToHeadphone( MixerChannel headphones );
 };
 
-void outputChannel::setGain( float newGain )
+void OutputChannel::setGain( float newGain )
 {
     gain = newGain;
 }
-void outputChannel::sendToHeadphone( MixerChannel headphones )
+void OutputChannel::sendToHeadphone( MixerChannel headphones )
 {
     headphones.inputGain = 1;
 }
@@ -266,30 +336,30 @@ void outputChannel::sendToHeadphone( MixerChannel headphones )
  */
 struct Mixer
 {
-	Mixer( unsigned short numberOfMonoChannels, unsigned short numberOfStereoChannels )
-	{
-		for(int i = 0; i<numberOfMonoChannels; i++)
-		{
-			//i don't understand why i cannot create a new instance of MonoChannel like: 
-			//monoChannels[i] = new MonoChannel; //help needed
-		}
+    Mixer( unsigned short numberOfMonoChannels, unsigned short numberOfStereoChannels )
+    {
+        for(int i = 0; i < numberOfMonoChannels; i++)
+        {
+            //i don't understand why i cannot create a new instance of MonoChannel like: 
+            //monoChannels[i] = new MonoChannel; //help needed
+        }
 
-		for(int i = 0; i<numberOfStereoChannels; i++)
-		{
-			//same here; looking forward to learning about these
-			//stereoChannels[i] = new StereoChannel;	
-		}	
-	}
+        for(int i = 0; i < numberOfStereoChannels; i++)
+        {
+            //same here; looking forward to learning about these
+            //stereoChannels[i] = new StereoChannel;	
+        }	
+    }
 	
-	MonoChannel monoChannels[4];
-	StereoChannel stereoChannels[2];
-	//wish i could do this 
-	//MonoChannel monoChannels[numberOfMonoChannels];
-	//StereoChannel stereoChannels[numberOfStereoChannels];
-	Effect effect1;
-	Effect effect2;
-	outputChannel mainMix;
-	outputChannel ctrlRoom;
+    MonoChannel monoChannels[4];
+    StereoChannel stereoChannels[2];
+    //wish i could do this 
+    //MonoChannel monoChannels[numberOfMonoChannels];
+    //StereoChannel stereoChannels[numberOfStereoChannels];
+    Effect effect1;
+    Effect effect2;
+    OutputChannel mainMix;
+    OutputChannel ctrlRoom;
 
     void boot();
     void sendTestSignal( MixerChannel destinationChannel);
@@ -318,16 +388,20 @@ void Mixer::sendTestSignal( MixerChannel destinationChannel )
 */
 struct Wavetable //well, this one is an outlier
 {
-	std::string name = "blank";
-	float samples[256];
-	
-	float getCurrentSample(float waveSamples[], int currentSampleNr);
-	void applyEffect(Effect effect); // 3
+    std::string name = "blank";
+
+    Wavetable()
+    {
+        std::cout << "Wavetable is created" << std::endl;
+    }
+
+    float getCurrentSample( float waveSamples[] , int currentSampleNr );
+    void applyEffect(Effect effect); // 3
 };
 
 float Wavetable::getCurrentSample( float waveSamples[], int currentSampleNr )
 {
-    return  waveSamples[currentSampleNr];
+    return waveSamples[currentSampleNr];
 }
 void  Wavetable::applyEffect( Effect effect )
 {
@@ -338,6 +412,26 @@ void  Wavetable::applyEffect( Effect effect )
 #include <iostream>
 int main()
 {
-	Example::main();
+    Example::main();
+
+    Effect effect1;
+    Effect effect2;
+    Filter myLOP;
+    SendAndReturn SAR_A;
+    SendAndReturn SAR_B;
+    FilterSection ch_1_Filters;
+    MixerChannel subgroup1;
+    MonoChannel channel_1;
+    MonoChannel channel_2;
+    StereoChannel channel_3_4;
+    OutputChannel mainMix;
+    Mixer alesis(4, 2);
+    Wavetable testWavetable;
+
+    effect1.savePreset( 0.3f, 0.4f, 1, effect1.myPresset );
+    ch_1_Filters.changeOrder( 4 );
+
+    std::cout << "Default cutoff for the low pass filter is: " << ch_1_Filters.LOP.cutoff << std::endl;
+    std::cout << "Pad frequency is: " << subgroup1.pad.highPass.cutoff << ", and the status is " << subgroup1.pad.isOn << std::endl;
     std::cout << "good to go!" << std::endl;
 }
