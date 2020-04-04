@@ -1,5 +1,5 @@
 /*
-Project 3 - Part 4 / 5
+ Project 3 - Part 4 / 5
  video: Chapter 2 - Part 9
  Member initialization tasks
  Create a branch named Part4
@@ -21,7 +21,7 @@ namespace Example {
 struct UDT  
 {
     int a; //a member variable
-    float b { 2.f }; //1) in-class initialization
+    float b { 2.f }; //3) in-class initialization
     UDT() : a(0) { } //3) 'constructor-initializer-list' member variable initialization
     void printThing()  //the member function
     {
@@ -38,9 +38,6 @@ int main()
 }
 
 //call Example::main()
-
-
-//insert Example::main() into main() of user's repo.
 
 /*
  1)
