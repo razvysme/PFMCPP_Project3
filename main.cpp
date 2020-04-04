@@ -1,61 +1,44 @@
 /*
- Project 3 - Part 3 / 5
- video: Chapter 2 - Part 8
- Constructors tasks
-
- Create a branch named Part3
-
- On a new branch:
-
- 1) Add a constructor for each User-Defined-Type.
+Project 3 - Part 4 / 5
+ video: Chapter 2 - Part 9
+ Member initialization tasks
+ Create a branch named Part4
  
- 2) amend some of your UDT's member functions to print out something interesting via std::cout
+ 1) initialize some of your member variables either in-class or in the Constructor member initializer list.
+ 2) make some of your member functions use those initialized member variables via std::cout statements.
  
- 3) Instantiate 1 or 2 instances of each of your user-defined types in the main function at the bottom of that file,
-
- 4) call some of your UDT's amended member functions in main().
- 
- 5) add some std::cout statements in main() that print out your UDT's member variable values or values returned from your UDT member functions (if they return values)
- 
- After you finish defining each type/function:
- click the [run] button.  Clear up any errors or warnings as best you can.
+ 3) click the [run] button.  Clear up any errors or warnings as best you can.
  
  Commit your changes by clicking on the Source Control panel on the left, entering a message, and click [Commit and push].
  
  Make a pull request after you make your first commit and pin the pull request link to our DM thread.
-
- send me a DM to check your pull request
-
+send me a DM to check your pull request
  Wait for my code review.
- 
- example:
  */
 
 #include <iostream>
-namespace Example 
-{
-struct UDT  // my user defined type named 'UDT'
+namespace Example {
+struct UDT  
 {
     int a; //a member variable
-    UDT() { a = 0; }             //1) the constructor
-    void printThing()            //the member function
+    float b { 2.f }; //1) in-class initialization
+    UDT() : a(0) { } //3) 'constructor-initializer-list' member variable initialization
+    void printThing()  //the member function
     {
-        std::cout << "UDT::printThing() " << a << std::endl;  //2) printing out something interesting
+        std::cout << "UDT::printThing() a:" << a << " b: " << b << std::endl;  //4) printing out something interesting
     }
 };
 
 int main()
 {
-    UDT foo;              //3) instantiating a UDT named 'foo' in main()
-    foo.printThing();     //4) calling a member function of the UDT instance.
-    
-    //5) a std::cout statement accessing foo's member variable.
-    //It also demonstrates a 'ternary expression', which is syntactic shorthand for an 'if/else' expression
-    std::cout << "Is foo's member var 'a' equal to 0? " << (foo.a == 0 ? "Yes" : "No") << "\n";
-    
+    UDT foo; //instantiating a Foo in main()
+    foo.printThing(); //calling a member function of the instance that was instantiated.
     return 0;
 }
 }
+
+//call Example::main()
+
 
 //insert Example::main() into main() of user's repo.
 
@@ -86,6 +69,7 @@ struct Effect
         param1 = 0; 
         param2 = 0;
         std::cout << "Effect created, parameters initialized to: " << param1 <<std::endl;
+        number = 1;
     }
 
     void savePreset( float currentParam1, float currentParam2, float effectNumber, Preset presetName);
@@ -103,6 +87,7 @@ void Effect::changePreset(float currentParam1, float currentParam2)
 {
     param1 = currentParam1; //this is some getto getter/setter thing, right?
     param2 = currentParam2;
+    std::cout << "Effect number changed to: " << number++ << std::endl;
 }
 /*
  2)
@@ -112,7 +97,7 @@ struct Filter
     std::string type;
     int order;
     bool bypassLED = false;
-    float cutoff;
+    float cutoff = 22000;
 
     //constructor
     Filter()
@@ -129,6 +114,7 @@ struct Filter
 
 std::string Filter::changeType( std::string currentType )
 {
+    std::cout << "Cutoff is: " << cutoff << std::endl;
     return currentType;
 }
 
@@ -214,7 +200,8 @@ struct MixerChannel
         Filter highPass;
         bool isOn;
     };
-    int number;
+    
+    int number = 1;
     SendAndReturn sendAndReturn;
     float inputGain = 0;
     float outputGain = 0;
@@ -226,6 +213,7 @@ struct MixerChannel
     {
         pad.highPass.cutoff = 75.0f; // this is some unnecessary workaround :)
         pad.isOn = false;
+        
     }
 
     void mute( bool muteButton );
@@ -240,6 +228,7 @@ void MixerChannel::mute(bool muteButton)
         outputGain = 1.0f;
 
     muteButton = !muteButton;
+    std::cout << "Mixer channel number: " << number << " is muted." << std::endl;
 }
 void MixerChannel::solo(bool soloButton, int channelNumber)
 {
@@ -429,7 +418,9 @@ int main()
     Wavetable testWavetable;
 
     effect1.savePreset( 0.3f, 0.4f, 1, effect1.myPresset );
+    effect1.changePreset(0.2f, 1.0f);
     ch_1_Filters.changeOrder( 4 );
+    channel_1.mute();
 
     std::cout << "Default cutoff for the low pass filter is: " << ch_1_Filters.LOP.cutoff << std::endl;
     std::cout << "Pad frequency is: " << subgroup1.pad.highPass.cutoff << ", and the status is " << subgroup1.pad.isOn << std::endl;
