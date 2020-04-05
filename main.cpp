@@ -52,7 +52,7 @@ struct Effect
     // had to add this struct so my effect logic makes sense
     struct Preset 
     {
-        float param1, param2, effectNumber;
+        float param1, param2, effectNumber; FIXME initialize your members. See instruction 1)
         Preset()
         {
             std::cout << "Preset loaded" << std::endl;
@@ -194,7 +194,7 @@ struct MixerChannel
 {
     struct HighPassFilter
     {
-        Filter highPass;
+        Filter highPass; FIXME initialize your members. See instruction 1)
         bool isOn;
     };
     
