@@ -52,9 +52,11 @@ struct Effect
     // had to add this struct so my effect logic makes sense
     struct Preset 
     {
-        float param1, param2, effectNumber; FIXME initialize your members. See instruction 1)
+        float param1, param2, effectNumber; 
         Preset()
         {
+            param1 = 0;
+            param2 = 0;
             std::cout << "Preset loaded" << std::endl;
         }
     };
@@ -194,8 +196,8 @@ struct MixerChannel
 {
     struct HighPassFilter
     {
-        Filter highPass; FIXME initialize your members. See instruction 1)
-        bool isOn;
+        Filter highPass;
+        bool isOn = false;
     };
     
     int number = 1;
@@ -403,8 +405,8 @@ int main()
     Effect effect1;
     Effect effect2;
     Filter myLOP;
-    SendAndReturn SAR_A;
-    SendAndReturn SAR_B;
+    SendAndReturn sendAndReturn_A;
+    SendAndReturn sendAndReturn_B;
     FilterSection ch_1_Filters;
     MixerChannel subgroup1;
     MonoChannel channel_1;
