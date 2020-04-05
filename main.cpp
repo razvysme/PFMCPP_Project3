@@ -2,11 +2,9 @@
  Project 3 - Part 4 / 5
  video: Chapter 2 - Part 9
  Member initialization tasks
-
  Create a branch named Part4
  
  1) initialize some of your member variables either in-class or in the Constructor member initializer list.
-
  2) make some of your member functions use those initialized member variables via std::cout statements.
  
  3) click the [run] button.  Clear up any errors or warnings as best you can.
@@ -14,9 +12,7 @@
  Commit your changes by clicking on the Source Control panel on the left, entering a message, and click [Commit and push].
  
  Make a pull request after you make your first commit and pin the pull request link to our DM thread.
-
 send me a DM to check your pull request
-
  Wait for my code review.
  */
 
@@ -43,7 +39,6 @@ int main()
 
 //call Example::main()
 
-
 /*
  1)
  */
@@ -57,9 +52,11 @@ struct Effect
     // had to add this struct so my effect logic makes sense
     struct Preset 
     {
-        float param1, param2, effectNumber;
+        float param1, param2, effectNumber; 
         Preset()
         {
+            param1 = 0;
+            param2 = 0;
             std::cout << "Preset loaded" << std::endl;
         }
     };
@@ -71,6 +68,7 @@ struct Effect
         param1 = 0; 
         param2 = 0;
         std::cout << "Effect created, parameters initialized to: " << param1 <<std::endl;
+        number = 1;
     }
 
     void savePreset( float currentParam1, float currentParam2, float effectNumber, Preset presetName);
@@ -88,6 +86,7 @@ void Effect::changePreset(float currentParam1, float currentParam2)
 {
     param1 = currentParam1; //this is some getto getter/setter thing, right?
     param2 = currentParam2;
+    std::cout << "Effect number changed to: " << number++ << std::endl;
 }
 /*
  2)
@@ -97,7 +96,7 @@ struct Filter
     std::string type;
     int order;
     bool bypassLED = false;
-    float cutoff;
+    float cutoff = 22000;
 
     //constructor
     Filter()
@@ -114,6 +113,7 @@ struct Filter
 
 std::string Filter::changeType( std::string currentType )
 {
+    std::cout << "Cutoff is: " << cutoff << std::endl;
     return currentType;
 }
 
@@ -197,9 +197,10 @@ struct MixerChannel
     struct HighPassFilter
     {
         Filter highPass;
-        bool isOn;
+        bool isOn = false;
     };
-    int number;
+    
+    int number = 1;
     SendAndReturn sendAndReturn;
     float inputGain = 0;
     float outputGain = 0;
@@ -211,6 +212,7 @@ struct MixerChannel
     {
         pad.highPass.cutoff = 75.0f; // this is some unnecessary workaround :)
         pad.isOn = false;
+        
     }
 
     void mute( bool muteButton );
@@ -225,6 +227,7 @@ void MixerChannel::mute(bool muteButton)
         outputGain = 1.0f;
 
     muteButton = !muteButton;
+    std::cout << "Mixer channel number: " << number << " is muted." << std::endl;
 }
 void MixerChannel::solo(bool soloButton, int channelNumber)
 {
@@ -402,8 +405,8 @@ int main()
     Effect effect1;
     Effect effect2;
     Filter myLOP;
-    SendAndReturn SAR_A;
-    SendAndReturn SAR_B;
+    SendAndReturn sendAndReturn_A;
+    SendAndReturn sendAndReturn_B;
     FilterSection ch_1_Filters;
     MixerChannel subgroup1;
     MonoChannel channel_1;
@@ -414,7 +417,9 @@ int main()
     Wavetable testWavetable;
 
     effect1.savePreset( 0.3f, 0.4f, 1, effect1.myPresset );
+    effect1.changePreset(0.2f, 1.0f);
     ch_1_Filters.changeOrder( 4 );
+    channel_1.mute();
 
     std::cout << "Default cutoff for the low pass filter is: " << ch_1_Filters.LOP.cutoff << std::endl;
     std::cout << "Pad frequency is: " << subgroup1.pad.highPass.cutoff << ", and the status is " << subgroup1.pad.isOn << std::endl;
