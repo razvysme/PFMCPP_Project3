@@ -83,7 +83,6 @@ struct Effect
 	unsigned short number;
 	float param1;
 	float param2;
-
     // had to add this struct so my effect logic makes sense
     struct Preset 
     {
@@ -108,6 +107,7 @@ struct Effect
 
     void savePreset( float currentParam1, float currentParam2, float effectNumber, Preset presetName);
     void changePreset( float currentParam1, float currentParam2 );
+    void ressetPresets(Effect effect);
 };
 
 void Effect::savePreset( float currentParam1, float currentParam2, float effectNumber, Preset presetName)
@@ -123,6 +123,17 @@ void Effect::changePreset(float currentParam1, float currentParam2)
     param2 = currentParam2;
     std::cout << "Effect number changed to: " << number++ << std::endl;
 }
+void Effect::ressetPresets(Effect effect)
+{   
+    unsigned short currentEffectNr = effect.number;
+    while( currentEffectNr < 10)
+    {
+        param1=0;
+        param2=0;
+        std::cout << "Effect number: " << currentEffectNr << " is reseted." <<std::endl;
+        currentEffectNr++;        
+    }
+}
 /*
  2)
  */
@@ -131,7 +142,7 @@ struct Filter
     std::string type;
     int order;
     bool bypassLED = false;
-    float cutoff = 22000;
+    float cutoff = 10000;
 
     //constructor
     Filter()
@@ -144,6 +155,7 @@ struct Filter
 
     std::string changeType( std::string currentType );
     void bypass();
+    void changeCutoff( float );
 };
 
 std::string Filter::changeType( std::string currentType )
@@ -156,6 +168,30 @@ void Filter::bypass()
 {
     //well this is kinda hard to implement without the audio stream, but it would look something like y[n]=x[n], therefore i added the bypassLED bool so this declaration is not empty.
     bypassLED = true;
+}
+
+void Filter::changeCutoff(float newCutoff)
+{
+    if ( newCutoff < cutoff )
+    {
+        while ( newCutoff < cutoff )
+        {
+            cutoff -= 100;
+            std::cout << "Cutoff decreaded by 100" << std::endl;
+        }
+    }
+    else if( newCutoff * 0.99f < cutoff  && newCutoff * 1.01f > cutoff )  //hacky way of checking for floats equality
+    {
+        std::cout << "Cutoff not changed." << std::endl;    
+    }
+    else
+    {
+        while ( cutoff < newCutoff )
+        {
+            cutoff += 100;
+            std::cout << "Cutoff increaded by 100" << std::endl;
+        }
+    }   
 }
 /*
  3)
@@ -176,6 +212,17 @@ struct SendAndReturn
 
     void filter( Filter lowPass );
     void applyEffect( Effect effect );
+
+    float fadeIn( float endGain )
+    {
+        while( gainLeftChannel < endGain )
+        {
+            std::cout <<  "Fade volume " << gainLeftChannel << std::endl;
+            
+            gainLeftChannel+= 0.1f;
+        }
+        return gainLeftChannel;
+    }
 };
 
 void SendAndReturn::filter( Filter lowPass )
@@ -208,6 +255,17 @@ struct FilterSection
 
     void changeOrder( int order ); // this made no logic sense, so i eddited it a bit
     void bypass();
+    Filter increaseFilter ( int stabilityTreshold, int startingValue ) 
+    {
+        Filter localFilter;
+        for ( int i = startingValue; i<stabilityTreshold; i++ )
+        {
+            localFilter.order = i;
+            if ( localFilter.order == stabilityTreshold)
+                return localFilter;
+        }
+        return localFilter;
+    }
 };
 
 void FilterSection::changeOrder( int order )
@@ -237,9 +295,9 @@ struct MixerChannel
     
     int number = 1;
     SendAndReturn sendAndReturn;
-    float inputGain = 0;
-    float outputGain = 0;
-    float pan = 0.5;
+    float inputGain = 0.7f;
+    float outputGain = 0.7f;
+    float pan = 0.5f;
     HighPassFilter pad;
 
     //constructor
@@ -252,6 +310,16 @@ struct MixerChannel
 
     void mute( bool muteButton );
     void solo( bool soloButton, int channelNumber );
+    void turnOffPad(HighPassFilter localPad)
+    {   
+        if (localPad.isOn)
+        {
+            while ( localPad.highPass.cutoff  > 0.0f )
+                localPad.highPass.cutoff -= 1.0f;
+        }
+    }
+
+
 };
 
 void MixerChannel::mute(bool muteButton)
@@ -288,6 +356,8 @@ struct MonoChannel
 
     void send( MixerChannel destination );
     void mute();
+    float panLeft( MixerChannel channel );
+
 };
 
 void MonoChannel::send( MixerChannel destination )
@@ -297,6 +367,16 @@ void MonoChannel::send( MixerChannel destination )
 void MonoChannel::mute()
 {
     channel.mute(true);
+}
+float MonoChannel::panLeft( MixerChannel localChannel )
+{   
+    for ( float i = channel.pan; i > 0.0f  && i < 0.5f; i -= 0.05f )
+    {
+        localChannel.pan = i;
+        std::cout << localChannel.pan << std::endl;
+    }
+    return localChannel.pan;
+
 }
 /*
  7)
@@ -315,6 +395,15 @@ struct StereoChannel
     
     void send( MixerChannel destination );
     void mute();
+    void panRight()
+    {
+        while (leftChannel.outputGain > 0 )
+        {
+            leftChannel.outputGain -= 0.1f;
+            rightChannel.outputGain = 1.0f - leftChannel.outputGain;
+            std::cout << "LC pan = " << leftChannel.outputGain << ", RC pan = " << rightChannel.outputGain << std::endl;
+        }
+    }
 };
 
 void StereoChannel::send( MixerChannel destination )
@@ -348,7 +437,20 @@ struct OutputChannel
 
 void OutputChannel::setGain( float newGain )
 {
-    gain = newGain;
+    for (int i = 0; i < 10; i++)
+    {
+        if( gain < newGain)
+        {
+            gain += newGain * 1/10;
+            std::cout << "new gain is: " << gain << std::endl;
+        }
+        else
+        {
+            gain -= newGain * 1/10;
+            std::cout << "new gain is: " << gain << std::endl; 
+        }
+
+    }
 }
 void OutputChannel::sendToHeadphone( MixerChannel headphones )
 {
@@ -363,14 +465,12 @@ struct Mixer
     {
         for(int i = 0; i < numberOfMonoChannels; i++)
         {
-            //i don't understand why i cannot create a new instance of MonoChannel like: 
-            //monoChannels[i] = new MonoChannel; //help needed
+            std::cout << "New Mono Channel Created" << std::endl;
         }
 
         for(int i = 0; i < numberOfStereoChannels; i++)
         {
-            //same here; looking forward to learning about these
-            //stereoChannels[i] = new StereoChannel;	
+            std::cout << "New stereo Channel Created" << std::endl;
         }	
     }
 	
@@ -409,9 +509,12 @@ void Mixer::sendTestSignal( MixerChannel destinationChannel )
 /*
 10)
 */
+#include <vector>
 struct Wavetable //well, this one is an outlier
 {
     std::string name = "blank";
+    std::vector < float > wavetable ;
+
 
     Wavetable()
     {
@@ -420,6 +523,7 @@ struct Wavetable //well, this one is an outlier
 
     float getCurrentSample( float waveSamples[] , int currentSampleNr );
     void applyEffect(Effect effect); // 3
+    void populateWavetable(Wavetable destination);
 };
 
 float Wavetable::getCurrentSample( float waveSamples[], int currentSampleNr )
@@ -431,6 +535,21 @@ void  Wavetable::applyEffect( Effect effect )
     effect.param1 = rand();
     effect.param2 = rand();
 }
+void Wavetable::populateWavetable( Wavetable destination )
+{
+    for( int i = 0; i < 64; i++ )
+    {
+        destination.wavetable.push_back(rand());
+    }
+    int i = 0;
+    for(float& item : destination.wavetable)
+    {
+        i++;
+        std::cout << "Wavetable at position " << i << " value is " << item << std::endl;
+    }
+
+}
+
 
 #include <iostream>
 int main()
@@ -455,6 +574,12 @@ int main()
     effect1.changePreset(0.2f, 1.0f);
     ch_1_Filters.changeOrder( 4 );
     channel_1.mute();
+    effect1.ressetPresets(effect1);
+    myLOP.changeCutoff(10000);
+    sendAndReturn_A.gainLeftChannel = sendAndReturn_A.fadeIn( 0.8f );
+    testWavetable.populateWavetable(testWavetable);
+    channel_3_4.panRight();
+    mainMix.setGain(0.3f);
 
     std::cout << "Default cutoff for the low pass filter is: " << ch_1_Filters.LOP.cutoff << std::endl;
     std::cout << "Pad frequency is: " << subgroup1.pad.highPass.cutoff << ", and the status is " << subgroup1.pad.isOn << std::endl;
