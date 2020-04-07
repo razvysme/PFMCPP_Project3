@@ -369,15 +369,14 @@ void MonoChannel::mute()
     channel.mute(true);
 }
 float MonoChannel::panLeft( MixerChannel localChannel )
-{
-        {
-        for ( float i = channel.pan; i > 0.0f  && i < 0.5f; i -= 0.05f )
-        {
-            localChannel.pan = i;
-            std::cout << localChannel.pan << std::endl;
-        }
-        return localChannel.pan;
+{   
+    for ( float i = channel.pan; i > 0.0f  && i < 0.5f; i -= 0.05f )
+    {
+        localChannel.pan = i;
+        std::cout << localChannel.pan << std::endl;
     }
+    return localChannel.pan;
+
 }
 /*
  7)
@@ -510,10 +509,13 @@ void Mixer::sendTestSignal( MixerChannel destinationChannel )
 /*
 10)
 */
+#include <vector>
 struct Wavetable //well, this one is an outlier
 {
     std::string name = "blank";
-    float wavetable[64];
+    std::vector < float > wavetable ;
+
+
     Wavetable()
     {
         std::cout << "Wavetable is created" << std::endl;
@@ -537,9 +539,15 @@ void Wavetable::populateWavetable( Wavetable destination )
 {
     for( int i = 0; i < 64; i++ )
     {
-        destination.wavetable[i] = rand();
-        std::cout << "Wavetable position " << i << " is " << wavetable[i] <<std::endl;
+        destination.wavetable.push_back(rand());
     }
+    int i = 0;
+    for(float& item : destination.wavetable)
+    {
+        i++;
+        std::cout << "Wavetable at position " << i << " value is " << item << std::endl;
+    }
+
 }
 
 
